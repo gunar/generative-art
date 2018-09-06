@@ -106,29 +106,29 @@ function bezier (mX1, mY1, mX2, mY2) {
   };
 };
 
-const easeInOutQuart = bezier(0.165, 0.84, 0.44, 1)
+const easeInQuart = bezier(0.165, 0.84, 0.44, 1)
 
 const DEBUG = false
 const sx = 0
 const sy = 0
-const sw = 400
-const sh = 400
-const S = 3 // size
+const sw = 600
+const sh = 600
+const S = 3.5 // size
 const SPACING = 2
 const CX = sw/2
 const CY = sh/2
 
-const N_ROTATING = sw*0.5234532
+const N_ROTATING = sw*0.8654
 const L_ROTATING = 100
 
-const N_SHOOTING = sw/8
+const N_SHOOTING = sw*0.3423
 const L_SHOOTING = 100
 
 const MAX_OPACITIY = 256
 
 // Golden Ratio
 const PHI = (1 + Math.sqrt(5)) / 2
-const ALPHA = 2
+const ALPHA = 5
 
 const rand = x => random(-x,x)
 const arr = x => Array.from({
@@ -229,8 +229,12 @@ function draw() {
       }
       return (L_ROTATING-p.t)/(L_ROTATING*1/4)
     }
-    gRotating.fill(255,MAX_OPACITIY*lifetimeOpacity()*initOpacity()*p.opacity)
-    gRotating.ellipse(CX+x, CY+y, p.s, p.s)
+    const life = p.t/L_ROTATING
+    const lifeRad = life*PI
+    const size = max(0.5,sin(lifeRad))*p.s
+    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()*p.opacity
+    gRotating.fill(255,opacity)
+    gRotating.ellipse(CX+x, CY+y, size, size)
   }
   copy(gRotating, 0, 0, sw, sh, 0, 0, sw, sh)
 
@@ -245,7 +249,9 @@ function draw() {
       p.dy = dy
     }
     p.t+=1
-    const eased = easeInOutQuart(p.t/L_SHOOTING)
+    const life = p.t/L_SHOOTING
+    const lifeRad = life*PI
+    const eased = easeInQuart(life)
     const x = p.sx+(p.dx - p.sx)*eased
     const y = p.sy+(p.dy - p.sy)*eased
 
@@ -257,8 +263,11 @@ function draw() {
       }
       return (L_SHOOTING-p.t)/(L_SHOOTING*1/4)
     }
-    gShooting.fill(255,MAX_OPACITIY*initOpacity()*lifetimeOpacity())
-    gShooting.ellipse(x, y, p.s, p.s)
+    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()
+    gShooting.fill(255,opacity)
+    const size = max(0.5,sin(lifeRad))*p.s
+    gShooting.ellipse(x, y, size, size)
+
     if (DEBUG) {
       gShooting.fill('red')
       gShooting.ellipse(p.dx, p.dy, S, S)
