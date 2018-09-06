@@ -120,10 +120,10 @@ const SPACING = 2
 const CX = sw/2
 const CY = sh/2
 
-const N_ROTATING = sw*0.8654
+const N_ROTATING = sw*0.5
 const L_ROTATING = 100
 
-const N_SHOOTING = sw*0.3423
+const N_SHOOTING = sw*0.3
 const L_SHOOTING = 100
 
 const MAX_OPACITIY = 256
