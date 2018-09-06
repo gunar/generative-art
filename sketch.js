@@ -106,6 +106,8 @@ function bezier (mX1, mY1, mX2, mY2) {
   };
 };
 
+// https://easings.net/
+// https://github.com/gre/bezier-easing
 const easeInQuart = bezier(0.165, 0.84, 0.44, 1)
 
 const DEBUG = false
