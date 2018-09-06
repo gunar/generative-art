@@ -140,9 +140,9 @@ const arr = x => Array.from({
 let pRotating, pShooting
 
 function setup() {
-	createCanvas(sw, sh)
+  createCanvas(sw, sh)
 
-	frameRate(60)
+	frameRate(30)
 
 	background('#222')
   fill('#FFF5')
