@@ -132,7 +132,7 @@ const MAX_OPACITIY = 256
 const PHI = (1 + Math.sqrt(5)) / 2
 const ALPHA = 5
 
-const rand = x => random(-x,x)
+const rand = (min, max) => min + ((max-min) * Math.random())
 const arr = x => Array.from({
 	length: x
 }, () => 0)
@@ -142,7 +142,7 @@ let pRotating, pShooting
 function setup() {
 	createCanvas(sw, sh)
 
-	frameRate(30)
+	frameRate(60)
 
 	background('#222')
   fill('#FFF5')
@@ -150,24 +150,24 @@ function setup() {
   ellipseMode(CENTER)
 
   getInitShooting = () => {
-    const sTheta = random(0, 2*PI)
-    const sR = random(0, sw/2)
-    const dTheta = random(0, 2*PI)
-    const dR = random(0, sh/2)
+    const sTheta = rand(0, 2*Math.PI)
+    const sR = rand(0, sw/2)
+    const dTheta = rand(0, 2*Math.PI)
+    const dR = rand(0, sh/2)
     return {
-      sx: CX+sR*cos(sTheta),
-      sy: CY+sR*sin(sTheta),
-      dx: CX+dR*cos(dTheta),
-      dy: CY+dR*sin(dTheta),
+      sx: CX+sR*Math.cos(sTheta),
+      sy: CY+sR*Math.sin(sTheta),
+      dx: CX+dR*Math.cos(dTheta),
+      dy: CY+dR*Math.sin(dTheta),
     }
   }
   pShooting = arr(N_SHOOTING)
     .map((_, k) => {
       return {
         ...getInitShooting(),
-        t : floor(random(0, L_SHOOTING)),
-        opacity: random(.5,1),
-        s: random(0, S),
+        t : floor(rand(0, L_SHOOTING)),
+        opacity: rand(.5,1),
+        s: rand(0, S),
       }
     })
 
@@ -182,11 +182,11 @@ function setup() {
   pRotating = arr(n)
     .map((_, k) => ({
       r: radius(k, n, b),
-      theta: 2*PI*k/PHI^2,
-      rotation: rand(PI/400),
-      t: random(0, L_ROTATING),
-      opacity: random(.5,1),
-      s: random(0, S)
+      theta: 2*Math.PI*k/PHI^2,
+      rotation: rand(-Math.PI/400, PI/400),
+      t: rand(0, L_ROTATING),
+      opacity: rand(.5,1),
+      s: rand(0, S)
     }))
 }
 
@@ -194,16 +194,16 @@ const limit = (i, lim) => i < lim ? i : lim
 
 function draw() {
   clear()
-  fill(200)
-  noStroke()
-  text(frameRate().toFixed(2) + "fps", 0, 10)
   if (DEBUG) {
     noFill()
     stroke('green')
     ellipse(CX, CY, sw, sh)
+    fill(200)
+    noStroke()
+    text(frameRate().toFixed(2) + "fps", 0, 10)
   }
 
-  const initOpacity = () => limit(frameCount/50, 1)
+  const initOpacity = limit(frameCount/50, 1)
 
   for (const p of pRotating) {
     p.theta += p.rotation
@@ -211,23 +211,15 @@ function draw() {
     if (p.t >= L_ROTATING) {
       p.t = 0
       // make particles appear in a different place
-      p.theta = random(0, 2*PI)
+      p.theta = rand(0, 2*Math.PI)
     }
     const { r, theta } = p
-    const x = CX*r*cos(theta)
-    const y = CY*r*sin(theta)
-    const lifetimeOpacity = () => {
-      if (p.t < L_ROTATING*1/4) {
-        return p.t/(L_ROTATING*1/4)
-      } else if (p.t < L_ROTATING*3/4) {
-        return 1
-      }
-      return (L_ROTATING-p.t)/(L_ROTATING*1/4)
-    }
+    const x = CX*r*Math.cos(theta)
+    const y = CY*r*Math.sin(theta)
     const life = p.t/L_ROTATING
-    const lifeRad = life*PI
-    const size = max(0.5,sin(lifeRad))*p.s
-    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()*p.opacity
+    const lifeRad = life*Math.PI
+    const size = Math.max(0.5,Math.sin(lifeRad))*p.s
+    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity*p.opacity
     fill(255,opacity)
     ellipse(CX+x, CY+y, size, size)
   }
@@ -243,22 +235,14 @@ function draw() {
     }
     p.t+=1
     const life = p.t/L_SHOOTING
-    const lifeRad = life*PI
+    const lifeRad = life*Math.PI
     const eased = easeInQuart(life)
     const x = p.sx+(p.dx - p.sx)*eased
     const y = p.sy+(p.dy - p.sy)*eased
 
-    const lifetimeOpacity = () => {
-      if (p.t < L_SHOOTING*1/4) {
-        return p.t/(L_SHOOTING*1/4)
-      } else if (p.t < L_SHOOTING*3/4) {
-        return 1
-      }
-      return (L_SHOOTING-p.t)/(L_SHOOTING*1/4)
-    }
-    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()
+    const opacity = Math.sin(lifeRad)*MAX_OPACITIY*initOpacity
     fill(255,opacity)
-    const size = max(0.5,sin(lifeRad))*p.s
+    const size = Math.max(0.5,Math.sin(lifeRad))*p.s
     ellipse(x, y, size, size)
 
     if (DEBUG) {
