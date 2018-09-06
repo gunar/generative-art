@@ -194,8 +194,14 @@ const limit = (i, lim) => i < lim ? i : lim
 
 function draw() {
   clear()
-  if (DEBUG) ellipse(CX, CY, sw, sh)
-  text(frameCount,0,10)
+  if (DEBUG) {
+    noFill()
+    stroke('green')
+    ellipse(CX, CY, sw, sh)
+    fill(200)
+    noStroke()
+    text(frameCount,0,10)
+  }
 
   const initOpacity = () => limit(frameCount/50, 1)
 
