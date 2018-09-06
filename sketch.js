@@ -110,7 +110,7 @@ function bezier (mX1, mY1, mX2, mY2) {
 // https://github.com/gre/bezier-easing
 const easeInQuart = bezier(0.165, 0.84, 0.44, 1)
 
-const DEBUG = false
+let DEBUG = false
 const sx = 0
 const sy = 0
 const sw = 600
@@ -120,17 +120,19 @@ const SPACING = 2
 const CX = sw/2
 const CY = sh/2
 
-const N_ROTATING = sw*0.5
+const N_ROTATING = sw*0.8
 const L_ROTATING = 100
 
-const N_SHOOTING = sw*0.3
+const N_SHOOTING = sw*0.2
 const L_SHOOTING = 100
 
-const MAX_OPACITIY = 256
+const MAX_GRAY = 256
+const MIN_GRAY = 34
 
 // Golden Ratio
 const PHI = (1 + Math.sqrt(5)) / 2
-const ALPHA = 5
+const ALPHA_SHOOTING = 0
+const ALPHA_ROTATING = 2
 
 const rand = (min, max) => min + ((max-min) * Math.random())
 const arr = x => Array.from({
@@ -138,6 +140,10 @@ const arr = x => Array.from({
 }, () => 0)
 
 let pRotating, pShooting
+
+function mouseClicked() {
+  DEBUG = ! DEBUG
+}
 
 function setup() {
   createCanvas(sw, sh)
@@ -149,9 +155,18 @@ function setup() {
 	noStroke()
   ellipseMode(CENTER)
 
-  getInitShooting = () => {
-    const sTheta = rand(0, 2*Math.PI)
-    const sR = rand(0, sw/2)
+  // sunflower seed arrangements http://demonstrations.wolfram.com/SunflowerSeedArrangements/
+  // https://stackoverflow.com/questions/28567166/uniformly-distribute-x-points-inside-a-circle#28572551
+  const radius = (k,n,b) => {
+    if (k>n-b) return 1
+    return sqrt(k-.5)/sqrt(n-(b+1)/2)
+  }
+
+  getInitShooting = (k) => {
+    const n = N_SHOOTING
+    const b = round(ALPHA_SHOOTING*sqrt(n)) // number of boundary points
+    const sTheta = 2*Math.PI*k/PHI^2
+    const sR = radius(k, n, b) * sw/2
     const dTheta = rand(0, 2*Math.PI)
     const dR = rand(0, sh/2)
     return {
@@ -164,28 +179,22 @@ function setup() {
   pShooting = arr(N_SHOOTING)
     .map((_, k) => {
       return {
-        ...getInitShooting(),
+        ...getInitShooting(k),
         t : floor(rand(0, L_SHOOTING)),
-        opacity: rand(.5,1),
+        gray: rand(.5,1),
         s: rand(1, S),
       }
     })
 
-  // sunflower seed arrangements http://demonstrations.wolfram.com/SunflowerSeedArrangements/
-  // https://stackoverflow.com/questions/28567166/uniformly-distribute-x-points-inside-a-circle#28572551
-  const radius = (k,n,b) => {
-    if (k>n-b) return 1
-    return sqrt(k-.5)/sqrt(n-(b+1)/2)
-  }
   const n = N_ROTATING
-  const b = round(ALPHA*sqrt(n)) // number of boundary points
+  const b = round(ALPHA_ROTATING*sqrt(n)) // number of boundary points
   pRotating = arr(n)
     .map((_, k) => ({
-      r: radius(k, n, b),
+      r: sw/2*radius(k, n, b),
       theta: 2*Math.PI*k/PHI^2,
       rotation: rand(-Math.PI/400, PI/400),
       t: rand(0, L_ROTATING),
-      opacity: rand(.5,1),
+      gray: rand(.5,1),
       s: rand(1, S)
     }))
 }
@@ -214,20 +223,24 @@ function draw() {
       p.theta = rand(0, 2*Math.PI)
     }
     const { r, theta } = p
-    const x = CX*r*Math.cos(theta)
-    const y = CY*r*Math.sin(theta)
+    const x = r*Math.cos(theta)
+    const y = r*Math.sin(theta)
     const life = p.t/L_ROTATING
     const lifeRad = life*Math.PI
     const size = Math.max(0.5,Math.sin(lifeRad))*p.s
-    const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity*p.opacity
-    fill(opacity)
+    const gray = Math.sin(lifeRad)*MAX_GRAY*initOpacity*p.gray
+    fill(Math.max(gray, MIN_GRAY))
     ellipse(CX+x, CY+y, size, size)
+    if (DEBUG) {
+      fill('blue')
+      ellipse(CX+x, CY+y, size, size)
+    }
   }
 
   for (const p of pShooting) {
     if (p.t === L_SHOOTING) {
       p.t = 0
-      const { sx, sy, dx, dy } = getInitShooting()
+      const { sx, sy, dx, dy } = getInitShooting(rand(0, N_SHOOTING))
       p.sx = sx
       p.sy = sy
       p.dx = dx
@@ -240,8 +253,8 @@ function draw() {
     const x = p.sx+(p.dx - p.sx)*eased
     const y = p.sy+(p.dy - p.sy)*eased
 
-    const opacity = Math.sin(lifeRad)*MAX_OPACITIY*initOpacity
-    fill(opacity)
+    const gray = Math.sin(lifeRad)*MAX_GRAY*initOpacity
+    fill(gray)
     const size = Math.max(0.5,Math.sin(lifeRad))*p.s
     ellipse(x, y, size, size)
 
