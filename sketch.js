@@ -149,11 +149,6 @@ function setup() {
 	noStroke()
   ellipseMode(CENTER)
 
-  gShooting = createGraphics(sw, sh)
-	gShooting.fill(255, 80)
-	gShooting.noStroke()
-  gShooting.ellipseMode(CENTER)
-
   getInitShooting = () => {
     const sTheta = random(0, 2*PI)
     const sR = random(0, sw/2)
@@ -175,13 +170,6 @@ function setup() {
         s: random(0, S),
       }
     })
-
-
-  gRotating = createGraphics(sw, sh)
-	gRotating.fill(255, 80)
-	gRotating.noStroke()
-  gRotating.ellipseMode(CENTER)
-
 
   // sunflower seed arrangements http://demonstrations.wolfram.com/SunflowerSeedArrangements/
   // https://stackoverflow.com/questions/28567166/uniformly-distribute-x-points-inside-a-circle#28572551
@@ -211,7 +199,6 @@ function draw() {
 
   const initOpacity = () => limit(frameCount/50, 1)
 
-  gRotating.clear()
   for (const p of pRotating) {
     p.theta += p.rotation
     p.t += 1
@@ -235,12 +222,10 @@ function draw() {
     const lifeRad = life*PI
     const size = max(0.5,sin(lifeRad))*p.s
     const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()*p.opacity
-    gRotating.fill(255,opacity)
-    gRotating.ellipse(CX+x, CY+y, size, size)
+    fill(255,opacity)
+    ellipse(CX+x, CY+y, size, size)
   }
-  copy(gRotating, 0, 0, sw, sh, 0, 0, sw, sh)
 
-  gShooting.clear()
   for (const p of pShooting) {
     if (p.t === L_SHOOTING) {
       p.t = 0
@@ -266,16 +251,15 @@ function draw() {
       return (L_SHOOTING-p.t)/(L_SHOOTING*1/4)
     }
     const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity()
-    gShooting.fill(255,opacity)
+    fill(255,opacity)
     const size = max(0.5,sin(lifeRad))*p.s
-    gShooting.ellipse(x, y, size, size)
+    ellipse(x, y, size, size)
 
     if (DEBUG) {
-      gShooting.fill('red')
-      gShooting.ellipse(p.dx, p.dy, S, S)
-      gShooting.fill('yellow')
-      gShooting.ellipse(p.sx, p.sy, S, S)
+      fill('red')
+      ellipse(p.dx, p.dy, S, S)
+      fill('yellow')
+      ellipse(p.sx, p.sy, S, S)
     }
   }
-  copy(gShooting, 0, 0, sw, sh, 0, 0, sw, sh)
 }
