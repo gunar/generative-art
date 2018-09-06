@@ -167,7 +167,7 @@ function setup() {
         ...getInitShooting(),
         t : floor(rand(0, L_SHOOTING)),
         opacity: rand(.5,1),
-        s: rand(0, S),
+        s: rand(1, S),
       }
     })
 
@@ -186,7 +186,7 @@ function setup() {
       rotation: rand(-Math.PI/400, PI/400),
       t: rand(0, L_ROTATING),
       opacity: rand(.5,1),
-      s: rand(0, S)
+      s: rand(1, S)
     }))
 }
 
@@ -220,7 +220,7 @@ function draw() {
     const lifeRad = life*Math.PI
     const size = Math.max(0.5,Math.sin(lifeRad))*p.s
     const opacity = sin(lifeRad)*MAX_OPACITIY*initOpacity*p.opacity
-    fill(255,opacity)
+    fill(opacity)
     ellipse(CX+x, CY+y, size, size)
   }
 
@@ -241,7 +241,7 @@ function draw() {
     const y = p.sy+(p.dy - p.sy)*eased
 
     const opacity = Math.sin(lifeRad)*MAX_OPACITIY*initOpacity
-    fill(255,opacity)
+    fill(opacity)
     const size = Math.max(0.5,Math.sin(lifeRad))*p.s
     ellipse(x, y, size, size)
 
