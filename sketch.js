@@ -106,7 +106,7 @@ function bezier (mX1, mY1, mX2, mY2) {
   };
 };
 
-const easeInOutQuart = bezier(0.77, 0, 0.175, 1)
+const easeInOutQuart = bezier(0.165, 0.84, 0.44, 1)
 
 const DEBUG = false
 const sx = 0
